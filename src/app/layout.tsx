@@ -46,10 +46,37 @@ export default function RootLayout({
                     dangerouslySetInnerHTML={{
                         __html: `
                         if ('serviceWorker' in navigator) {
-                            window.addEventListener('load', () => {
-                                navigator.serviceWorker.register('/TicketsCalc/sw.js')
-                                    .then(reg => console.log('SW registered:', reg))
-                                    .catch(err => console.log('SW registration failed:', err));
+                            window.addEventListener('load', async () => {
+                                try {
+                                    const registration = await navigator.serviceWorker.register('/TicketsCalc/sw.js');
+                                    console.log('SW registered');
+                                    
+                                    // Проверка обновлений каждую минуту
+                                    setInterval(() => registration.update(), 60000);
+                                    
+                                    // Автообновление при новой версии
+                                    registration.addEventListener('updatefound', () => {
+                                        const newWorker = registration.installing;
+                                        if (!newWorker) return;
+                                        
+                                        newWorker.addEventListener('statechange', () => {
+                                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                                console.log('New version! Updating...');
+                                                newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                                setTimeout(() => window.location.reload(), 500);
+                                            }
+                                        });
+                                    });
+                                    
+                                    let refreshing = false;
+                                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                                        if (refreshing) return;
+                                        refreshing = true;
+                                        window.location.reload();
+                                    });
+                                } catch (err) {
+                                    console.log('SW failed:', err);
+                                }
                             });
                         }
                     `,

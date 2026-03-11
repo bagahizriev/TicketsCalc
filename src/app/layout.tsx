@@ -10,6 +10,9 @@ export const metadata: Metadata = {
         statusBarStyle: "black-translucent",
         title: "Прибыль",
     },
+    icons: {
+        apple: "/TicketsCalc/icon.svg",
+    },
 };
 
 export const viewport: Viewport = {
@@ -19,7 +22,7 @@ export const viewport: Viewport = {
     userScalable: false,
     viewportFit: "cover",
     themeColor: [
-        { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+        { media: "(prefers-color-scheme: light)", color: "#f2f2f7" },
         { media: "(prefers-color-scheme: dark)", color: "#000000" },
     ],
 };
@@ -36,6 +39,9 @@ export default function RootLayout({
                 <link rel="apple-touch-icon" href="/TicketsCalc/icon.svg" />
                 <meta name="apple-mobile-web-app-capable" content="yes" />
                 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+                <meta name="apple-mobile-web-app-title" content="Прибыль" />
+                <meta name="format-detection" content="telephone=no" />
+                <meta name="mobile-web-app-capable" content="yes" />
                 <script
                     dangerouslySetInnerHTML={{
                         __html: `
@@ -50,7 +56,7 @@ export default function RootLayout({
                     }}
                 />
             </head>
-            <body className="antialiased">{children}</body>
+            <body className="antialiased h-full">{children}</body>
         </html>
     );
 }

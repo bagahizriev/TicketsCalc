@@ -30,16 +30,40 @@ export default function SelectField({ label, value, onChange, options }: SelectF
         setIsFocused(false);
     };
 
+    const selectedLabel = options.find(opt => opt.value === value)?.label || value;
+
     return (
-        <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
-            <select value={value} onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur} className={`w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-black/30 border-2 transition-all duration-200 text-gray-900 dark:text-white ${isFocused ? "border-blue-500 dark:border-blue-400 shadow-lg" : "border-gray-200 dark:border-gray-700"} focus:outline-none min-h-[48px] text-base cursor-pointer`}>
-                {options.map((option) => (
-                    <option key={option.value} value={option.value}>
-                        {option.label}
-                    </option>
-                ))}
-            </select>
+        <div className="ios-group-item flex items-center justify-between py-3">
+            <label className="ios-label">{label}</label>
+            <div className="flex items-center">
+                <span className="ios-label-secondary mr-2">{selectedLabel}</span>
+                <select
+                    value={value}
+                    onChange={handleChange}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    style={{
+                        WebkitAppearance: "none",
+                        appearance: "none",
+                    }}
+                >
+                    {options.map((option) => (
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
+                    ))}
+                </select>
+                <svg 
+                    className="w-4 h-4 text-gray-400" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                    style={{ color: "var(--ios-label-tertiary)" }}
+                >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+            </div>
         </div>
     );
 }

@@ -8,9 +8,10 @@ interface InputFieldProps {
     onChange: (value: string) => void;
     placeholder: string;
     type: "decimal" | "integer";
+    suffix?: string;
 }
 
-export default function InputField({ label, value, onChange, placeholder, type }: InputFieldProps) {
+export default function InputField({ label, value, onChange, placeholder, type, suffix }: InputFieldProps) {
     const [isFocused, setIsFocused] = useState(false);
 
     const sanitizeInput = (text: string): string => {
@@ -50,9 +51,26 @@ export default function InputField({ label, value, onChange, placeholder, type }
     };
 
     return (
-        <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
-            <input type="text" inputMode={type === "decimal" ? "decimal" : "numeric"} value={value} onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur} placeholder={placeholder} className={`w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-black/30 border-2 transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 ${isFocused ? "border-blue-500 dark:border-blue-400 shadow-lg" : "border-gray-200 dark:border-gray-700"} focus:outline-none min-h-[48px] text-base`} />
+        <div className="ios-group-item flex items-center justify-between py-3">
+            <label className="ios-label flex-shrink-0 mr-4">{label}</label>
+            <div className="flex items-center flex-1 justify-end">
+                <input
+                    type="text"
+                    inputMode={type === "decimal" ? "decimal" : "numeric"}
+                    value={value}
+                    onChange={handleChange}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    placeholder={placeholder}
+                    className="ios-input text-right w-full max-w-[140px]"
+                    style={{
+                        boxShadow: isFocused ? "0 0 0 3px rgba(0, 122, 255, 0.15)" : "none",
+                    }}
+                />
+                {suffix && (
+                    <span className="ios-label-secondary ml-2">{suffix}</span>
+                )}
+            </div>
         </div>
     );
 }

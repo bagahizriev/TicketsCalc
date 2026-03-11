@@ -2,20 +2,74 @@
 
 import { useState, useCallback, useEffect } from "react";
 import InputField from "./InputField";
-import SelectField from "./SelectField";
+import PlatformSlider from "./PlatformSlider";
 import { calculateProfit, formatNumberWithSeparators } from "@/lib/calculations";
 
+// Storage keys for persistent settings
+const STORAGE_KEYS = {
+    QCOMMISSION: "tickets-qcommission",
+    TCLOUD_COMMISSION: "tickets-tcloud-commission",
+    Q_RATIO: "tickets-qratio",
+    TAX: "tickets-tax",
+};
+
 export default function Calculator() {
+    // Non-persistent state (resets on reload)
     const [price, setPrice] = useState("");
     const [quantity, setQuantity] = useState("");
-    const [qticketsRatio, setQticketsRatio] = useState("0.7");
-    const [qticketsCommission, setQticketsCommission] = useState("0.06");
-    const [ticketscloudRatio, setTicketscloudRatio] = useState("0.3");
-    const [ticketscloudCommission, setTicketscloudCommission] = useState("0.12");
-    const [tax, setTax] = useState("0.06");
     const [expenses, setExpenses] = useState("");
     const [profit, setProfit] = useState<number | null>(null);
     const [showCopied, setShowCopied] = useState(false);
+
+    // Persistent state (saved to localStorage)
+    const [qticketsRatio, setQticketsRatio] = useState(0.7);
+    const [ticketscloudRatio, setTicketscloudRatio] = useState(0.3);
+    const [qticketsCommission, setQticketsCommission] = useState("6");
+    const [ticketscloudCommission, setTicketscloudCommission] = useState("12");
+    const [tax, setTax] = useState("6");
+
+    // Load persistent settings on mount
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        const savedQCommission = localStorage.getItem(STORAGE_KEYS.QCOMMISSION);
+        const savedTCloudCommission = localStorage.getItem(STORAGE_KEYS.TCLOUD_COMMISSION);
+        const savedQRatio = localStorage.getItem(STORAGE_KEYS.Q_RATIO);
+        const savedTax = localStorage.getItem(STORAGE_KEYS.TAX);
+
+        if (savedQCommission) setQticketsCommission(savedQCommission);
+        if (savedTCloudCommission) setTicketscloudCommission(savedTCloudCommission);
+        if (savedTax) setTax(savedTax);
+
+        if (savedQRatio) {
+            const ratio = parseFloat(savedQRatio);
+            if (!isNaN(ratio) && ratio >= 0 && ratio <= 1) {
+                setQticketsRatio(ratio);
+                setTicketscloudRatio(Math.round((1 - ratio) * 100) / 100);
+            }
+        }
+    }, []);
+
+    // Save to localStorage when persistent values change
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        localStorage.setItem(STORAGE_KEYS.QCOMMISSION, qticketsCommission);
+    }, [qticketsCommission]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        localStorage.setItem(STORAGE_KEYS.TCLOUD_COMMISSION, ticketscloudCommission);
+    }, [ticketscloudCommission]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        localStorage.setItem(STORAGE_KEYS.Q_RATIO, qticketsRatio.toString());
+    }, [qticketsRatio]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        localStorage.setItem(STORAGE_KEYS.TAX, tax);
+    }, [tax]);
 
     const handleCalculate = useCallback(() => {
         if (!price || !quantity) {
@@ -32,7 +86,7 @@ export default function Calculator() {
             return;
         }
 
-        const result = calculateProfit(priceNum, quantityNum, parseFloat(qticketsRatio), parseFloat(qticketsCommission), parseFloat(ticketscloudRatio), parseFloat(ticketscloudCommission), parseFloat(tax), expensesNum);
+        const result = calculateProfit(priceNum, quantityNum, qticketsRatio, (parseFloat(qticketsCommission) || 0) / 100, ticketscloudRatio, (parseFloat(ticketscloudCommission) || 0) / 100, (parseFloat(tax) || 0) / 100, expensesNum);
 
         setProfit(result);
     }, [price, quantity, qticketsRatio, qticketsCommission, ticketscloudRatio, ticketscloudCommission, tax, expenses]);
@@ -41,14 +95,15 @@ export default function Calculator() {
         handleCalculate();
     }, [handleCalculate]);
 
+    const handlePlatformChange = useCallback((newQtickets: number, newTicketscloud: number) => {
+        setQticketsRatio(newQtickets);
+        setTicketscloudRatio(newTicketscloud);
+        if (navigator.vibrate) navigator.vibrate(3);
+    }, []);
+
     const handleClear = () => {
         setPrice("");
         setQuantity("");
-        setQticketsRatio("0.7");
-        setQticketsCommission("0.06");
-        setTicketscloudRatio("0.3");
-        setTicketscloudCommission("0.12");
-        setTax("0.06");
         setExpenses("");
         setProfit(null);
 
@@ -77,80 +132,71 @@ export default function Calculator() {
             <section className="animate-ios-slide-up">
                 <h2 className="ios-caption mb-3 px-1">ПАРАМЕТРЫ ПРОДАЖИ</h2>
                 <div className="ios-group liquid-glass">
-                    <InputField
-                        label="Цена билета"
-                        value={price}
-                        onChange={(value) => {
-                            setPrice(value);
-                        }}
-                        placeholder="0"
-                        type="decimal"
-                        suffix="₽"
-                    />
-                    <InputField
-                        label="Количество"
-                        value={quantity}
-                        onChange={(value) => {
-                            setQuantity(value);
-                        }}
-                        placeholder="0"
-                        type="integer"
-                        suffix="шт"
-                    />
+                    <InputField label="Цена билета" value={price} onChange={setPrice} placeholder="0" type="decimal" suffix="₽" />
+                    <InputField label="Количество" value={quantity} onChange={setQuantity} placeholder="0" type="integer" suffix="шт" />
                 </div>
             </section>
 
             {/* Platform Settings */}
             <section className="animate-ios-slide-up">
                 <h2 className="ios-caption mb-3 px-1">ПЛАТФОРМЫ</h2>
-                <div className="ios-group liquid-glass">
-                    <SelectField
-                        label="Qtickets доля"
-                        value={qticketsRatio}
-                        onChange={(value) => {
-                            setQticketsRatio(value);
-                        }}
-                        options={[
-                            { value: "0.7", label: "70%" },
-                            { value: "0.5", label: "50%" },
-                            { value: "1", label: "100%" },
-                        ]}
-                    />
-                    <SelectField
-                        label="Qtickets комиссия"
-                        value={qticketsCommission}
-                        onChange={(value) => {
-                            setQticketsCommission(value);
-                        }}
-                        options={[
-                            { value: "0.06", label: "6%" },
-                            { value: "0.08", label: "8%" },
-                        ]}
-                    />
-                    <SelectField
-                        label="Ticketscloud доля"
-                        value={ticketscloudRatio}
-                        onChange={(value) => {
-                            setTicketscloudRatio(value);
-                        }}
-                        options={[
-                            { value: "0.3", label: "30%" },
-                            { value: "0.5", label: "50%" },
-                            { value: "1", label: "100%" },
-                        ]}
-                    />
-                    <SelectField
-                        label="Ticketscloud комиссия"
-                        value={ticketscloudCommission}
-                        onChange={(value) => {
-                            setTicketscloudCommission(value);
-                        }}
-                        options={[
-                            { value: "0.12", label: "12%" },
-                            { value: "0.1", label: "10%" },
-                            { value: "0.07", label: "7%" },
-                        ]}
-                    />
+                <div className="ios-group liquid-glass px-4">
+                    {/* Commissions */}
+                    <div className="flex items-center justify-between py-3 border-b border-gray-200/20">
+                        <div className="flex-1 mr-4">
+                            <label className="ios-label block mb-1">Комиссия Qtickets</label>
+                            <input
+                                type="text"
+                                inputMode="decimal"
+                                value={qticketsCommission}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/[^\d.]/g, "");
+                                    const parts = val.split(".");
+                                    if (parts.length > 2) return;
+                                    setQticketsCommission(val);
+                                }}
+                                onBlur={() => {
+                                    const num = parseFloat(qticketsCommission);
+                                    if (!isNaN(num) && num >= 0 && num <= 100) {
+                                        setQticketsCommission(num.toString());
+                                    } else {
+                                        setQticketsCommission("6");
+                                    }
+                                }}
+                                placeholder="6"
+                                className="ios-input text-right w-full"
+                            />
+                            <span className="ios-label-secondary ml-2">%</span>
+                        </div>
+                        <div className="flex-1 ml-4">
+                            <label className="ios-label block mb-1 text-right">Комиссия Ticketscloud</label>
+                            <input
+                                type="text"
+                                inputMode="decimal"
+                                value={ticketscloudCommission}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/[^\d.]/g, "");
+                                    const parts = val.split(".");
+                                    if (parts.length > 2) return;
+                                    setTicketscloudCommission(val);
+                                }}
+                                onBlur={() => {
+                                    const num = parseFloat(ticketscloudCommission);
+                                    if (!isNaN(num) && num >= 0 && num <= 100) {
+                                        setTicketscloudCommission(num.toString());
+                                    } else {
+                                        setTicketscloudCommission("12");
+                                    }
+                                }}
+                                placeholder="12"
+                                className="ios-input text-right w-full"
+                            />
+                            <span className="ios-label-secondary ml-2">%</span>
+                        </div>
+                    </div>
+
+                    {/* Platform Ratio Slider */}
+                    <PlatformSlider qticketsValue={qticketsRatio} onChange={handlePlatformChange} />
                 </div>
             </section>
 
@@ -158,28 +204,33 @@ export default function Calculator() {
             <section className="animate-ios-slide-up">
                 <h2 className="ios-caption mb-3 px-1">НАЛОГИ И РАСХОДЫ</h2>
                 <div className="ios-group liquid-glass">
-                    <SelectField
-                        label="Налог"
-                        value={tax}
-                        onChange={(value) => {
-                            setTax(value);
-                        }}
-                        options={[
-                            { value: "0.06", label: "6%" },
-                            { value: "0.105", label: "10.5%" },
-                            { value: "0.11", label: "11%" },
-                        ]}
-                    />
-                    <InputField
-                        label="Расходы"
-                        value={expenses}
-                        onChange={(value) => {
-                            setExpenses(value);
-                        }}
-                        placeholder="0"
-                        type="decimal"
-                        suffix="₽"
-                    />
+                    <div className="ios-group-item flex items-center justify-between py-3">
+                        <label className="ios-label">Налог</label>
+                        <div className="flex items-center flex-1 justify-end">
+                            <input
+                                type="text"
+                                inputMode="decimal"
+                                value={tax}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/[^\d.]/g, "");
+                                    const parts = val.split(".");
+                                    if (parts.length > 2) return;
+                                    setTax(val);
+                                }}
+                                onBlur={() => {
+                                    const num = parseFloat(tax);
+                                    if (!isNaN(num) && num >= 0 && num <= 100) {
+                                        setTax(num.toString());
+                                    } else {
+                                        setTax("6");
+                                    }
+                                }}
+                                placeholder="6"
+                                className="ios-input text-right w-24"
+                            />
+                        </div>
+                    </div>
+                    <InputField label="Расходы" value={expenses} onChange={setExpenses} placeholder="0" type="decimal" suffix="₽" />
                 </div>
             </section>
 

@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Generate Icons</title>
+    </head>
+    <body>
+        <h1>Icon Generator</h1>
+        <p>Откройте консоль разработчика (F12) и скопируйте сгенерированные иконки</p>
+
+        <canvas id="canvas192" width="192" height="192"></canvas>
+        <canvas id="canvas512" width="512" height="512"></canvas>
+
+        <script>
+            function createIcon(size) {
+                const canvas = document.getElementById(`canvas${size}`);
+                const ctx = canvas.getContext("2d");
+
+                // Gradient background
+                const gradient = ctx.createLinearGradient(0, 0, size, size);
+                gradient.addColorStop(0, "#667eea");
+                gradient.addColorStop(1, "#764ba2");
+
+                // Rounded rectangle
+                const radius = size * 0.234375; // 120/512
+                ctx.beginPath();
+                ctx.moveTo(radius, 0);
+                ctx.lineTo(size - radius, 0);
+                ctx.quadraticCurveTo(size, 0, size, radius);
+                ctx.lineTo(size, size - radius);
+                ctx.quadraticCurveTo(size, size, size - radius, size);
+                ctx.lineTo(radius, size);
+                ctx.quadraticCurveTo(0, size, 0, size - radius);
+                ctx.lineTo(0, radius);
+                ctx.quadraticCurveTo(0, 0, radius, 0);
+                ctx.closePath();
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                // White circles
+                ctx.fillStyle = "white";
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = size * 0.0625; // 32/512
+
+                // Outer circle
+                ctx.beginPath();
+                ctx.arc(size / 2, size / 2, size * 0.25, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Middle circle
+                ctx.beginPath();
+                ctx.arc(size / 2, size / 2, size * 0.125, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Inner circle
+                ctx.beginPath();
+                ctx.arc(size / 2, size / 2, size * 0.0625, 0, Math.PI * 2);
+                ctx.fill();
+
+                return canvas.toDataURL("image/png");
+            }
+
+            const icon192 = createIcon(192);
+            const icon512 = createIcon(512);
+
+            console.log("Сохраните эти данные как icon-192.png и icon-512.png:");
+            console.log("\nДля скачивания иконок:");
+            console.log("1. Правый клик на canvas → Save image as...");
+            console.log("2. Или используйте ссылки ниже:");
+
+            const link192 = document.createElement("a");
+            link192.href = icon192;
+            link192.download = "icon-192.png";
+            link192.textContent = "Скачать icon-192.png";
+            document.body.appendChild(link192);
+            document.body.appendChild(document.createElement("br"));
+
+            const link512 = document.createElement("a");
+            link512.href = icon512;
+            link512.download = "icon-512.png";
+            link512.textContent = "Скачать icon-512.png";
+            document.body.appendChild(link512);
+        </script>
+    </body>
+</html>

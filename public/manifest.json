@@ -1,0 +1,29 @@
+{
+    "name": "Калькулятор билетов",
+    "short_name": "Билеты",
+    "description": "Калькулятор рекламных метрик для расчета eCPC, eCPM и CTR",
+    "start_url": "/TicketsCalc/",
+    "display": "standalone",
+    "background_color": "#000000",
+    "theme_color": "#000000",
+    "orientation": "portrait",
+    "scope": "/TicketsCalc/",
+    "icons": [
+        {
+            "src": "/TicketsCalc/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["utilities", "productivity"],
+    "shortcuts": [
+        {
+            "name": "Новый расчет",
+            "short_name": "Расчет",
+            "description": "Начать новый расчет метрик",
+            "url": "/TicketsCalc/",
+            "icons": [{ "src": "/TicketsCalc/icon.svg", "sizes": "any" }]
+        }
+    ]
+}

@@ -2,7 +2,7 @@
 /node_modules
 /.pnp
 .pnp.js
-/AdsCalcOld/
+/ticketpriceold/
 
 # testing
 /coverage

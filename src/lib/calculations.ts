@@ -1,70 +1,43 @@
 /**
  * Форматирует число с разделителями разрядов (пробелами)
  * @param number - число для форматирования
- * @param decimalPlaces - количество знаков после запятой
  * @returns отформатированная строка
  */
-export function formatNumberWithSeparators(number: number, decimalPlaces: number): string {
-    const formatted = number.toFixed(decimalPlaces);
-    const parts = formatted.split(".");
-
-    let integerPart = parts[0];
-    let formattedInteger = "";
-
-    for (let i = 0; i < integerPart.length; i++) {
-        const positionFromEnd = integerPart.length - i;
-        if (i > 0 && positionFromEnd % 3 === 0) {
-            formattedInteger += " ";
-        }
-        formattedInteger += integerPart[i];
-    }
-
-    if (parts.length > 1) {
-        return `${formattedInteger}.${parts[1]}`;
-    }
-
-    return formattedInteger;
+export function formatNumberWithSeparators(number: number): string {
+    return Math.round(number)
+        .toString()
+        .replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
 /**
- * Обрезает число до указанного количества знаков после запятой без округления
- * @param value - число для обрезки
- * @param decimals - количество знаков после запятой
- * @returns обрезанное число
+ * Вычисляет прибыль от продажи билетов
+ * @param price - цена одного билета
+ * @param quantity - количество билетов
+ * @param qticketsRatio - соотношение продаж через Qtickets (0-1)
+ * @param qticketsCommission - комиссия Qtickets (0-1)
+ * @param ticketscloudRatio - соотношение продаж через Ticketscloud (0-1)
+ * @param ticketscloudCommission - комиссия Ticketscloud (0-1)
+ * @param tax - налог (0-1)
+ * @param expenses - дополнительные расходы
+ * @returns прибыль
  */
-function truncateDecimals(value: number, decimals: number): number {
-    const multiplier = Math.pow(10, decimals);
-    return Math.floor(value * multiplier) / multiplier;
-}
+export function calculateProfit(price: number, quantity: number, qticketsRatio: number, qticketsCommission: number, ticketscloudRatio: number, ticketscloudCommission: number, tax: number, expenses: number): number {
+    // Общая выручка
+    const revenue = price * quantity;
 
-/**
- * Вычисляет рекламные метрики
- * @param budget - бюджет кампании
- * @param impressions - количество показов
- * @param clicks - количество кликов
- * @returns объект с метриками ecpc, ecpm, ctr
- */
-export function calculateMetrics(
-    budget: number,
-    impressions: number,
-    clicks: number,
-): {
-    ecpc: number;
-    ecpm: number;
-    ctr: number;
-} {
-    // eCPC = Бюджет / Переходы (обрезаем до 2 знаков без округления)
-    const ecpc = truncateDecimals(budget / clicks, 2);
+    // Комиссии платформ
+    const qticketsCommissionAmount = revenue * qticketsRatio * qticketsCommission;
+    const ticketscloudCommissionAmount = revenue * ticketscloudRatio * ticketscloudCommission;
+    const totalCommissions = qticketsCommissionAmount + ticketscloudCommissionAmount;
 
-    // eCPM = (Бюджет / Показы) * 1000 (обрезаем до 2 знаков без округления)
-    const ecpm = truncateDecimals((budget / impressions) * 1000, 2);
+    // Выручка после комиссий
+    const revenueAfterCommissions = revenue - totalCommissions;
 
-    // CTR = (Переходы / Показы) * 100 (округляем математически до 3 знаков)
-    const ctr = Math.round((clicks / impressions) * 100 * 1000) / 1000;
+    // Налог от выручки после комиссий
+    const taxAmount = tax * revenueAfterCommissions;
 
-    return {
-        ecpc,
-        ecpm,
-        ctr,
-    };
+    // Итоговая прибыль
+    const profit = revenueAfterCommissions - taxAmount - expenses;
+
+    return profit;
 }

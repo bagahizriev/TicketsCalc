@@ -1,7 +1,7 @@
 {
-    "name": "Калькулятор билетов",
-    "short_name": "Билеты",
-    "description": "Калькулятор рекламных метрик для расчета eCPC, eCPM и CTR",
+    "name": "Калькулятор прибыли",
+    "short_name": "Прибыль",
+    "description": "Калькулятор прибыли от продажи билетов с учетом комиссий платформ и налогов",
     "start_url": "/TicketsCalc/",
     "display": "standalone",
     "background_color": "#000000",

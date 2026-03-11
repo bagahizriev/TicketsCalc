@@ -2,13 +2,13 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-    title: "Калькулятор билетов",
-    description: "Калькулятор рекламных метрик для расчета eCPC, eCPM и CTR",
+    title: "Калькулятор прибыли",
+    description: "Калькулятор прибыли от продажи билетов с учетом комиссий платформ и налогов",
     manifest: "/TicketsCalc/manifest.json",
     appleWebApp: {
         capable: true,
         statusBarStyle: "black-translucent",
-        title: "Билеты",
+        title: "Прибыль",
     },
 };
 

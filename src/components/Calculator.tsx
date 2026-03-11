@@ -140,11 +140,11 @@ export default function Calculator() {
             {/* Platform Settings */}
             <section className="animate-ios-slide-up">
                 <h2 className="ios-caption mb-3 px-1">ПЛАТФОРМЫ</h2>
-                <div className="ios-group liquid-glass px-4">
-                    {/* Commissions */}
-                    <div className="flex items-center justify-between py-3 border-b border-gray-200/20">
-                        <div className="flex-1 mr-4">
-                            <label className="ios-label block mb-1">Комиссия Qtickets</label>
+                <div className="ios-group liquid-glass">
+                    {/* Commissions - stacked vertically */}
+                    <div className="ios-group-item flex items-center justify-between py-3">
+                        <label className="ios-label">Комиссия Qtickets</label>
+                        <div className="flex items-center">
                             <input
                                 type="text"
                                 inputMode="decimal"
@@ -164,12 +164,14 @@ export default function Calculator() {
                                     }
                                 }}
                                 placeholder="6"
-                                className="ios-input text-right w-full"
+                                className="ios-input text-right w-24"
                             />
                             <span className="ios-label-secondary ml-2">%</span>
                         </div>
-                        <div className="flex-1 ml-4">
-                            <label className="ios-label block mb-1 text-right">Комиссия Ticketscloud</label>
+                    </div>
+                    <div className="ios-group-item flex items-center justify-between py-3">
+                        <label className="ios-label">Комиссия Ticketscloud</label>
+                        <div className="flex items-center">
                             <input
                                 type="text"
                                 inputMode="decimal"
@@ -189,14 +191,16 @@ export default function Calculator() {
                                     }
                                 }}
                                 placeholder="12"
-                                className="ios-input text-right w-full"
+                                className="ios-input text-right w-24"
                             />
                             <span className="ios-label-secondary ml-2">%</span>
                         </div>
                     </div>
 
                     {/* Platform Ratio Slider */}
-                    <PlatformSlider qticketsValue={qticketsRatio} onChange={handlePlatformChange} />
+                    <div className="px-4">
+                        <PlatformSlider qticketsValue={qticketsRatio} onChange={handlePlatformChange} />
+                    </div>
                 </div>
             </section>
 
@@ -206,7 +210,7 @@ export default function Calculator() {
                 <div className="ios-group liquid-glass">
                     <div className="ios-group-item flex items-center justify-between py-3">
                         <label className="ios-label">Налог</label>
-                        <div className="flex items-center flex-1 justify-end">
+                        <div className="flex items-center">
                             <input
                                 type="text"
                                 inputMode="decimal"
@@ -228,6 +232,7 @@ export default function Calculator() {
                                 placeholder="6"
                                 className="ios-input text-right w-24"
                             />
+                            <span className="ios-label-secondary ml-2">%</span>
                         </div>
                     </div>
                     <InputField label="Расходы" value={expenses} onChange={setExpenses} placeholder="0" type="decimal" suffix="₽" />
@@ -273,14 +278,7 @@ export default function Calculator() {
             )}
 
             {/* Action Buttons */}
-            <section className="animate-ios-slide-up space-y-3 pt-2 pb-4">
-                <button onClick={handleCalculate} className="w-full ios-button ios-button-filled ios-button-large liquid-glass-elevated">
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
-                    Рассчитать
-                </button>
-
+            <section className="animate-ios-slide-up pt-2 pb-4">
                 <button onClick={handleClear} className="w-full ios-button ios-button-destructive ios-button-large liquid-glass" style={{ background: "var(--glass-bg)" }}>
                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
